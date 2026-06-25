@@ -98,4 +98,3 @@ Amazon actively blocks scrapers. If products fail to import:
 - **Cheerio** (HTML parsing)
 - **Pinterest Pin It API** (standard web share button)
 
-"# amazon-pinterest" 

@@ -3,6 +3,8 @@ import { connectDB } from '@/lib/mongodb';
 import Product from '@/models/Product';
 import { scrapeAmazonProduct } from '@/lib/scraper';
 
+export const maxDuration = 30; // Vercel: allow up to 30s for scraping
+
 export async function POST(req: NextRequest) {
   try {
     const { urls } = await req.json();
@@ -15,7 +17,6 @@ export async function POST(req: NextRequest) {
     const results = await Promise.allSettled(
       urls.map(async (url: string) => {
         const data = await scrapeAmazonProduct(url.trim());
-        // Upsert by ASIN
         const product = await Product.findOneAndUpdate(
           { asin: data.asin },
           { ...data },
@@ -36,6 +37,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ saved: succeeded.length, errors: failed, products: succeeded });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Server error';
+    console.error('[scrape] error:', message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
